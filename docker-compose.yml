@@ -9,7 +9,7 @@ services:
       - "3000:3000"
     volumes:
       # Claude CLI 바이너리 (호스트에서 마운트)
-      - /opt/homebrew/bin/claude:/usr/local/bin/claude:ro
+      - /opt/homebrew/bin/claude:/usr/local/bin/claude
       # Claude 인증 정보 (호스트에서 마운트)
       - ${HOME}/.claude:/root/.claude:ro
     environment:
