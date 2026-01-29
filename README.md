@@ -117,11 +117,26 @@ Hello! How can I help you today?
 # 의존성 설치
 npm install
 
-# 개발 서버 실행 (백그라운드)
-npm run dev &
+# 개발 서버 실행
+npm run dev
 
-# http://localhost:3000 접속
+# 웹 브라우저에서 http://localhost:3000 접속
 ```
+
+## 웹 UI로 테스트하기
+
+브라우저에서 `http://localhost:3000`을 열면 바로 사용할 수 있는 테스트 UI가 제공됩니다.
+
+**주요 기능:**
+- 🎯 **예시 프롬프트**: 거시경제, 금리 전망, 삼성전자 분석 등 원클릭 테스트
+- 💬 **실시간 스트리밍**: 응답이 타이핑되는 것처럼 실시간으로 표시
+- 🛠️ **도구 사용 내역**: WebSearch, WebFetch 등 사용된 도구 확인
+- 📊 **메트릭 표시**: 소요시간, 비용, 턴수 등 실시간 모니터링
+- 🔍 **Raw 메시지**: 디버깅을 위한 전체 JSON 메시지 확인
+
+![웹 UI 스크린샷](https://via.placeholder.com/800x400?text=Claude+Code+API+Web+UI)
+
+## HTTP API로 사용하기
 
 서버가 실행되면 어떤 언어에서든 HTTP API로 사용할 수 있습니다.
 
@@ -333,23 +348,31 @@ API 문서를 반환합니다.
 ## 프로젝트 구조
 
 ```
-awesome-demo-generate-agent/
-├── .claude/
-│   ├── settings.json              # 팀 공유 설정 (hooks, permissions)
-│   ├── settings.local.json        # 개인 설정 (git 무시됨)
+.
+├── .claude/                        # Claude Code 설정
+│   ├── settings.json               # 팀 공유 설정
+│   ├── settings.local.json         # 개인 설정 (git 무시)
 │   └── skills/
-│       └── macro-analysis/        # 커스텀 스킬
+│       └── macro-analysis/         # 커스텀 스킬
 │           └── SKILL.md
-├── app/
-│   ├── api/claude/
-│   │   ├── route.ts               # 동기 API
-│   │   └── stream/route.ts        # 스트리밍 API
-│   ├── page.tsx                   # 테스트 UI
-│   ├── layout.tsx
-│   └── globals.css
+├── app/                            # Next.js App Router
+│   ├── api/
+│   │   └── claude/
+│   │       ├── route.ts            # 동기 API (/api/claude)
+│   │       └── stream/
+│   │           └── route.ts        # 스트리밍 API (/api/claude/stream)
+│   ├── layout.tsx                  # Root layout
+│   ├── page.tsx                    # 웹 UI (테스트 인터페이스)
+│   └── globals.css                 # Tailwind CSS
 ├── .gitignore
+├── next.config.ts                  # Next.js 설정
 ├── package.json
-└── README.md
+├── package-lock.json
+├── postcss.config.mjs              # PostCSS 설정
+├── README.md                       # 프로젝트 문서
+├── tailwind.config.ts              # Tailwind CSS 설정
+├── TEST.md                         # 테스트 가이드
+└── tsconfig.json                   # TypeScript 설정
 ```
 
 ---
