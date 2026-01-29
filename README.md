@@ -10,27 +10,106 @@ Claude Code CLI를 HTTP API로 래핑하여 웹 애플리케이션에서 사용�
 
 ## 사전 요구사항
 
+### 0. 기본 환경 설정 (처음 시작하는 경우)
+
+**Node.js 설치 확인**
+```bash
+node --version
+npm --version
+```
+
+**Node.js가 없다면 설치:**
+
+<details>
+<summary>macOS</summary>
+
+```bash
+# Homebrew 설치 (없을 경우)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Node.js 설치
+brew install node
+```
+</details>
+
+<details>
+<summary>Linux (Ubuntu/Debian)</summary>
+
+```bash
+# Node.js 20.x 설치
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+</details>
+
+<details>
+<summary>Windows</summary>
+
+[Node.js 공식 사이트](https://nodejs.org/)에서 LTS 버전 다운로드 및 설치
+</details>
+
+**Git 설치 확인 및 설치**
+```bash
+# 확인
+git --version
+
+# macOS: 없다면 자동 설치 프롬프트
+# Linux: sudo apt-get install git
+# Windows: https://git-scm.com/download/win
+```
+
 ### 1. Claude Code CLI 설치
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
+**설치 확인:**
+```bash
+claude --version
+# 출력 예시: 2.0.21
+```
+
+**문제 발생 시:**
+- 권한 오류: `sudo npm install -g @anthropic-ai/claude-code`
+- 경로 오류: `~/.npm-global/bin`을 PATH에 추가
+
 ### 2. 최초 인증
 
 ```bash
-# 터미널에서 실행 (브라우저 OAuth 인증)
+# 터미널에서 실행
 claude
 ```
 
-브라우저가 열리면 Anthropic 계정으로 로그인하세요. 인증이 완료되면 CLI 사용 가능합니다.
+**인증 과정:**
+1. 터미널에서 `claude` 명령어 실행
+2. 브라우저가 자동으로 열림
+3. Anthropic 계정으로 로그인 (없으면 가입)
+4. "Authorize" 버튼 클릭
+5. 터미널로 돌아가면 인증 완료
+
+**브라우저가 안 열린다면:**
+```bash
+# 수동으로 URL 복사해서 브라우저에 붙여넣기
+claude --auth
+```
 
 ### 3. 인증 확인
 
 ```bash
-# 테스트
+# 간단한 테스트
 claude --print "hello"
 ```
+
+**성공 시 출력:**
+```
+Hello! How can I help you today?
+```
+
+**실패 시:**
+- `~/.claude` 폴더 확인: `ls -la ~/.claude`
+- 재인증: `claude` 명령어 다시 실행
+- 로그 확인: `claude --verbose --print "test"`
 
 ## 설치 및 실행
 
