@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { spawn } from 'child_process';
+import { existsSync } from 'fs';
 
 interface MCPServer {
   name: string;
@@ -42,7 +43,16 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ error: 'Prompt required' }), { status: 400 });
   }
 
-  const claudePath = '/opt/homebrew/bin/claude';
+  // Docker 환경과 로컬 환경 모두 지원
+  const possiblePaths = [
+    '/usr/local/bin/claude',  // Docker 마운트 경로
+    '/opt/homebrew/bin/claude',  // macOS Homebrew
+    'claude'  // PATH에서 찾기
+  ];
+
+  const claudePath = possiblePaths.find(path =>
+    path === 'claude' || existsSync(path)
+  ) || 'claude';
   const args = [
     '--print',
     '--output-format', 'stream-json',

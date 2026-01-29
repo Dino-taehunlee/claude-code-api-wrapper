@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { spawn } from 'child_process';
+import { existsSync } from 'fs';
 
 // MCP 서버 설정 (예시 - 필요시 추가)
 // WebSearch는 Claude Code 내장 도구로 이미 사용 가능
@@ -152,7 +153,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const claudePath = '/opt/homebrew/bin/claude';
+    // Docker 환경과 로컬 환경 모두 지원
+    const possiblePaths = [
+      '/usr/local/bin/claude',  // Docker 마운트 경로
+      '/opt/homebrew/bin/claude',  // macOS Homebrew
+      'claude'  // PATH에서 찾기
+    ];
+
+    const claudePath = possiblePaths.find(path =>
+      path === 'claude' || existsSync(path)
+    ) || 'claude';
     const args = [
       '--print',
       '--output-format', 'stream-json',
