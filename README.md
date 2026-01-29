@@ -113,60 +113,158 @@ Hello! How can I help you today?
 
 ## 설치 및 실행
 
-### 방법 1: 로컬 개발
-
 ```bash
 # 의존성 설치
 npm install
 
-# 개발 서버 실행
-npm run dev
+# 개발 서버 실행 (백그라운드)
+npm run dev &
 
 # http://localhost:3000 접속
 ```
 
-### 방법 2: Docker (권장)
+서버가 실행되면 어떤 언어에서든 HTTP API로 사용할 수 있습니다.
 
-Docker를 사용하면 어떤 언어/프레임워크에서든 HTTP API로 쉽게 사용할 수 있습니다.
+## 다양한 언어에서 사용하기
 
-```bash
-# Docker Compose로 실행
-docker-compose up
-
-# 백그라운드 실행
-docker-compose up -d
-
-# 로그 확인
-docker-compose logs -f
-
-# 중지
-docker-compose down
-```
-
-**사용 예시 (다른 언어에서):**
-
-```python
-# Python
-import requests
-
-response = requests.post("http://localhost:3000/api/claude/stream",
-    json={"prompt": "거시경제 분석해줘"})
-
-for line in response.iter_lines():
-    print(line.decode())
-```
+### cURL
 
 ```bash
-# cURL
+# 스트리밍 API
 curl -X POST http://localhost:3000/api/claude/stream \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "현재 경제 상황 분석해줘"}'
+  -d '{"prompt": "현재 미국 경제 상황 분석해줘"}' \
+  --no-buffer
+
+# 동기 API
+curl -X POST http://localhost:3000/api/claude \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "삼성전자 주가 분석해줘"}'
 ```
 
-**주의사항:**
-- Claude CLI가 호스트에 설치되고 인증되어 있어야 합니다
-- `~/.claude` 폴더가 존재해야 합니다 (인증 정보)
-- macOS/Linux의 경우 `/opt/homebrew/bin/claude` 경로 확인 필요
+### Python
+
+```python
+import requests
+import json
+
+# 스트리밍 응답
+response = requests.post(
+    "http://localhost:3000/api/claude/stream",
+    json={"prompt": "거시경제 분석해줘"},
+    stream=True
+)
+
+for line in response.iter_lines():
+    if line:
+        data = json.loads(line.decode('utf-8'))
+        if data['type'] == 'assistant':
+            print(data['message']['content'][0].get('text', ''))
+        elif data['type'] == 'result':
+            print(f"\n\n비용: ${data['total_cost_usd']:.4f}")
+
+# 동기 응답
+response = requests.post(
+    "http://localhost:3000/api/claude",
+    json={"prompt": "삼성전자 분석해줘"}
+)
+result = response.json()
+print(result['result'])
+```
+
+### JavaScript/Node.js
+
+```javascript
+// 스트리밍
+const response = await fetch('http://localhost:3000/api/claude/stream', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt: '미국 경제 분석해줘' })
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  const text = decoder.decode(value);
+  const lines = text.split('\n').filter(line => line.trim());
+
+  for (const line of lines) {
+    const msg = JSON.parse(line);
+    if (msg.type === 'assistant') {
+      console.log(msg.message.content[0]?.text);
+    }
+  }
+}
+
+// 동기
+const syncResponse = await fetch('http://localhost:3000/api/claude', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt: '삼성전자 분석해줘' })
+});
+
+const data = await syncResponse.json();
+console.log(data.result);
+```
+
+### Go
+
+```go
+package main
+
+import (
+    "bufio"
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    // 스트리밍 요청
+    body := map[string]string{"prompt": "거시경제 분석해줘"}
+    jsonData, _ := json.Marshal(body)
+
+    resp, _ := http.Post(
+        "http://localhost:3000/api/claude/stream",
+        "application/json",
+        bytes.NewBuffer(jsonData),
+    )
+    defer resp.Body.Close()
+
+    scanner := bufio.NewScanner(resp.Body)
+    for scanner.Scan() {
+        var msg map[string]interface{}
+        json.Unmarshal(scanner.Bytes(), &msg)
+
+        if msg["type"] == "assistant" {
+            content := msg["message"].(map[string]interface{})["content"]
+            fmt.Println(content)
+        }
+    }
+}
+```
+
+### Ruby
+
+```ruby
+require 'net/http'
+require 'json'
+require 'uri'
+
+# 동기 요청
+uri = URI('http://localhost:3000/api/claude')
+req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
+req.body = { prompt: '삼성전자 분석해줘' }.to_json
+
+res = Net::HTTP.start(uri.hostname, uri.port) { |http| http.request(req) }
+result = JSON.parse(res.body)
+puts result['result']
+```
 
 ## API 엔드포인트
 
@@ -493,9 +591,11 @@ interface StreamMessage {
 
 ## 주의사항
 
-- Claude Code CLI가 설치되고 인증된 로컬 환경에서만 작동합니다
+- Claude Code CLI 설치 및 인증이 필수입니다 (`claude` 명령어로 로그인)
+- Claude Code 구독이 있어야 사용 가능합니다 (API 키 불필요)
 - `--dangerously-skip-permissions` 플래그를 사용하므로 신뢰할 수 있는 환경에서만 실행하세요
 - 타임아웃: 20분 (복잡한 분석 작업 고려)
+- **비용 절감**: Anthropic API 대신 Claude Code 구독을 사용하므로 별도 API 비용 없음
 
 ## 라이선스
 
