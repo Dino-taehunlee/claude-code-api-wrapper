@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
         env: {
           ...process.env,
           PATH: process.env.PATH || '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin',
-          HOME: process.env.HOME || '/root',
+          HOME: process.env.HOME || '/home/nextjs',
           TERM: 'xterm-256color',
         },
         stdio: ['pipe', 'pipe', 'pipe'],

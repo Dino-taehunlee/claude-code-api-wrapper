@@ -6,15 +6,14 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
-      # Claude CLI 바이너리 (호스트에서 마운트)
-      - /opt/homebrew/bin/claude:/usr/local/bin/claude
       # Claude 인증 정보 (호스트에서 마운트)
-      - ${HOME}/.claude:/root/.claude:ro
+      - ${HOME}/.claude:/home/nextjs/.claude
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/claude"]
