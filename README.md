@@ -34,6 +34,8 @@ claude --print "hello"
 
 ## 설치 및 실행
 
+### 방법 1: 로컬 개발
+
 ```bash
 # 의존성 설치
 npm install
@@ -43,6 +45,49 @@ npm run dev
 
 # http://localhost:3000 접속
 ```
+
+### 방법 2: Docker (권장)
+
+Docker를 사용하면 어떤 언어/프레임워크에서든 HTTP API로 쉽게 사용할 수 있습니다.
+
+```bash
+# Docker Compose로 실행
+docker-compose up
+
+# 백그라운드 실행
+docker-compose up -d
+
+# 로그 확인
+docker-compose logs -f
+
+# 중지
+docker-compose down
+```
+
+**사용 예시 (다른 언어에서):**
+
+```python
+# Python
+import requests
+
+response = requests.post("http://localhost:3000/api/claude/stream",
+    json={"prompt": "거시경제 분석해줘"})
+
+for line in response.iter_lines():
+    print(line.decode())
+```
+
+```bash
+# cURL
+curl -X POST http://localhost:3000/api/claude/stream \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "현재 경제 상황 분석해줘"}'
+```
+
+**주의사항:**
+- Claude CLI가 호스트에 설치되고 인증되어 있어야 합니다
+- `~/.claude` 폴더가 존재해야 합니다 (인증 정보)
+- macOS/Linux의 경우 `/opt/homebrew/bin/claude` 경로 확인 필요
 
 ## API 엔드포인트
 

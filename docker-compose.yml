@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  claude-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      # Claude CLI 바이너리 (호스트에서 마운트)
+      - /opt/homebrew/bin/claude:/usr/local/bin/claude:ro
+      # Claude 인증 정보 (호스트에서 마운트)
+      - ${HOME}/.claude:/root/.claude:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/claude"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -90,11 +90,11 @@ export async function POST(request: NextRequest) {
       };
 
       const child = spawn(claudePath, args, {
-        cwd: '/Users/ac01-taehunlee/Documents/GitHub/awesome-demo-generate-agent',
+        cwd: process.cwd(),
         env: {
           ...process.env,
-          PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin',
-          HOME: process.env.HOME || '/Users/ac01-taehunlee',
+          PATH: process.env.PATH || '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin',
+          HOME: process.env.HOME || '/root',
           TERM: 'xterm-256color',
         },
         stdio: ['pipe', 'pipe', 'pipe'],
