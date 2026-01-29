@@ -43,9 +43,8 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ error: 'Prompt required' }), { status: 400 });
   }
 
-  // Docker 환경과 로컬 환경 모두 지원
+  // Claude CLI 경로 감지
   const possiblePaths = [
-    '/usr/local/bin/claude',  // Docker 마운트 경로
     '/opt/homebrew/bin/claude',  // macOS Homebrew
     'claude'  // PATH에서 찾기
   ];
@@ -104,7 +103,6 @@ export async function POST(request: NextRequest) {
         env: {
           ...process.env,
           PATH: process.env.PATH || '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin',
-          HOME: process.env.HOME || '/home/nextjs',
           TERM: 'xterm-256color',
         },
         stdio: ['pipe', 'pipe', 'pipe'],
